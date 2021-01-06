@@ -4,7 +4,7 @@
     <el-header>
       <div>
         <img src="../assets/mallLogo.jpg" alt="" id="mallLogo">
-        <span>电商后台管理系统</span>
+        <span>教务系统</span>
       </div>
       <el-button type="info" @click="logout">退出</el-button>
     </el-header>
@@ -24,7 +24,7 @@
           active-text-color="#409EFF"
           :router="true">
 <!--          一级菜单-->
-          <el-submenu :index="item.id + ''" v-for="item in menulist" :key="item.id">
+          <el-submenu :index="item.id + ''" v-for="item in menulist" :key="item.id" class="setTextLeft">
 <!--            菜单模板区-->
             <template slot="title">
 <!--              图标-->
@@ -39,11 +39,11 @@
               :key="subItem.id"
               @click="saveNavState('/' + subItem.path)">
               <template slot="title">
-              <!--              图标-->
-              <i class="el-icon-menu"></i>
-              <!--              文本-->
-              <span>{{subItem.authName}}</span>
-            </template>
+                <!--              图标-->
+                <i class="el-icon-menu"></i>
+                <!--              文本-->
+                <span>{{subItem.authName}}</span>
+              </template>
             </el-menu-item>
           </el-submenu>
         </el-menu>
@@ -63,23 +63,68 @@ export default {
   data () {
     return {
       // 左侧菜单数据
-      menulist: [],
+      menulist: [{
+        id: 101,
+        authName: '个人信息',
+        path: 'info',
+        children: [{
+          id: 105,
+          authName: '个人信息',
+          path: 'subinfo',
+          children: []
+        }]
+      }, {
+        id: 102,
+        authName: '课程信息',
+        path: 'course',
+        children: [{
+          id: 106,
+          authName: '课程信息',
+          path: 'subcourse',
+          children: []
+        }]
+      }, {
+        id: 103,
+        authName: '课程成绩',
+        path: 'sc',
+        children: [{
+          id: 107,
+          authName: '课程成绩',
+          path: 'subsc',
+          children: []
+        }]
+      }, {
+        id: 104,
+        authName: '用户管理',
+        path: 'user',
+        children: [{
+          id: 108,
+          authName: '用户管理',
+          path: 'subuser',
+          children: []
+        }]
+      }],
       iconsObj: {
-        125: 'el-icon-s-custom',
+        104: 'el-icon-s-custom',
         103: 'el-icon-s-operation',
         101: 'el-icon-s-goods',
-        102: 'el-icon-s-order',
-        145: 'el-icon-s-marketing'
+        102: 'el-icon-s-order'
       },
       // 侧边栏是否折叠
       isCollapse: false,
       // 被激活的链接地址
-      activePath: ''
+      activePath: '',
+      // 用户uid
+      uid: '',
+      // 用户权限
+      pow: ''
     }
   },
   created () {
     this.getMenuList()
     this.activePath = window.sessionStorage.getItem('activePath')
+    this.uid = window.sessionStorage.getItem('uid')
+    this.pow = window.sessionStorage.getItem('pow')
   },
   methods: {
     logout () {
@@ -109,6 +154,10 @@ export default {
 
   .homeContainer{
     height: 100%;
+  }
+
+  .setTextLeft{
+    text-align: left;
   }
 
   .el-header{

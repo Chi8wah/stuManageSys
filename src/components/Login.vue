@@ -75,7 +75,7 @@ export default {
         if (res.meta.status !== 200) return this.$message.error(res.message)
         this.$message.success('登录成功')
         // 将登录成功之后的id保存到客户端的sessionStorage中
-        window.sessionStorage.setItem('id', res.uid)
+        window.sessionStorage.setItem('uid', res.uid)
         // 将权限保存到客户端的sessionStorage中
         window.sessionStorage.setItem('pow', res.pow)
         // 跳转到/home

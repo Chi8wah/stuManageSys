@@ -1,8 +1,6 @@
 const express = require('express')
-const path = require('path')
 var bodyParser = require('body-parser')
 const app = express()
-const fs = require('fs')
 
 // 连接数据库
 const mysql = require('mysql')
