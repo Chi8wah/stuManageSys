@@ -72,7 +72,9 @@ export default {
       this.$refs.loginFormRef.validate(async valid => {
         if (!valid) return this.$message.error('输入有误')
         const { data: res } = await this.$http.post('login', this.loginForm)
-        if (res.meta.status !== 200) return this.$message.error(res.message)
+        if (res.meta.status !== 200) {
+          return this.$message.error(res.message)
+        }
         this.$message.success('登录成功')
         // 将登录成功之后的id保存到客户端的sessionStorage中
         window.sessionStorage.setItem('uid', res.uid)

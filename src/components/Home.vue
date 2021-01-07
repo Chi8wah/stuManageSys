@@ -121,7 +121,6 @@ export default {
     }
   },
   created () {
-    this.getMenuList()
     this.activePath = window.sessionStorage.getItem('activePath')
     this.uid = window.sessionStorage.getItem('uid')
     this.pow = window.sessionStorage.getItem('pow')
@@ -130,13 +129,6 @@ export default {
     logout () {
       window.sessionStorage.clear()
       this.$router.push('/login')
-    },
-    //  获取所有菜单
-    async getMenuList () {
-      const { data: res } = await this.$http.get('menus')
-      if (res.meta.status !== 200) return this.$message.error(res.meta.msg)
-      this.menulist = res.data
-      console.log(res)
     },
     toggleCollapse () {
       this.isCollapse = !this.isCollapse
