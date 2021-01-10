@@ -84,10 +84,7 @@
           <el-input v-model="editForm.password"></el-input>
         </el-form-item>
         <el-form-item label="身份">
-          <el-radio-group v-model="editForm.pow">
-            <el-radio label="teacher">教师</el-radio>
-            <el-radio label="student">学生</el-radio>
-          </el-radio-group>
+          <el-input v-model="editForm.pow" disabled></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">

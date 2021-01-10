@@ -42,7 +42,6 @@ app.get('/login', (req, res) => { // 查询
 })
 
 app.post('/login', async (req, res) => { // 提交登录表单
-  console.log(req.body)
   const { username, password } = req.body
   var sql = `SELECT * FROM user WHERE username="${username}"`
   const connection = mysql.createConnection({
@@ -261,11 +260,10 @@ app.put('/user', (req, res) => { // 更新用户信息
   const {
     uid,
     username,
-    password,
-    pow
+    password
   } = req.body
 
-  const sql = `UPDATE user SET username="${username}",password="${password}",pow="${pow}"  WHERE uid=${uid}`
+  const sql = `UPDATE user SET username="${username}",password="${password}"  WHERE uid=${uid}`
   const connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
