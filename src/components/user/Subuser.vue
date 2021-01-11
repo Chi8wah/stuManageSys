@@ -110,7 +110,8 @@ export default {
       addForm: {
         username: '',
         password: '',
-        pow: 'student'
+        pow: 'student',
+        uid: ''
       },
       addFormRules: {
         username: [
@@ -207,6 +208,8 @@ export default {
       this.$refs.addFormRef.validate(async valid => {
         if (!valid) return
         // 可以发起添加用户的网络请求
+        const addUid = parseInt(this.userlist[this.userlist.length - 1].uid) + 1
+        this.addForm.uid = addUid
         const { data: res } = await this.$http.post('user', this.addForm)
         if (res.meta.status !== 200) {
           this.$message.error(res.message)
@@ -233,13 +236,13 @@ export default {
         const { data: res } = await this.$http.put('user', this.editForm)
         if (res.meta.status !== 200) {
           this.$message.error(res.message)
+        } else {
+          this.$message.success('更新用户信息成功')
         }
         // 关闭对话框
         this.editDialogVisible = false
         // 刷新数据列表
         this.getUserList()
-        // 提示修改成功
-        this.$message.success('更新用户信息成功')
       })
     },
     async removeUserById (uid) {

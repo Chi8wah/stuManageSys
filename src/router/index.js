@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Login from '../components/Login.vue'
 import Home from '../components/Home.vue'
+import Welcome from '../components/Welcome.vue'
 import Subcourse from '../components/course/Subcourse'
 import Subinfo from '../components/info/Subinfo'
 import Subsc from '../components/sc/Subsc'
@@ -19,9 +20,13 @@ const routes = [
     component: Login
   }, {
     path: '/home',
-    name: 'Home',
+    redirect: '/welcome',
     component: Home,
     children: [{
+      path: '/welcome',
+      name: 'Welcome',
+      component: Welcome
+    }, {
       path: '/subcourse',
       name: 'Subcourse',
       component: Subcourse

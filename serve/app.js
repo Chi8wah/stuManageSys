@@ -309,11 +309,9 @@ app.post('/user', (req, res) => { // 添加用户
   const {
     username,
     password,
-    pow
+    pow,
+    uid
   } = req.body
-
-  let newTotal = 0
-  const totalsql = 'SELECT COUNT(*) FROM user'
 
   const connection = mysql.createConnection({
     host: 'localhost',
@@ -323,66 +321,50 @@ app.post('/user', (req, res) => { // 添加用户
   })
 
   connection.connect()
-  // 查询用户总数
-  connection.query(totalsql, (err, result) => {
+  // 添加用户
+  const usersql = `INSERT INTO user(uid,username,password,pow) VALUES ("${uid}","${username}","${password}","${pow}")`
+  connection.query(usersql, function (err, result) {
     if (err) {
-      console.log('[SELECT ERROR 查询用户总数出错 - ', err.message)
+      console.log('[SELECT ERROR] 添加用户出错 - ', err.message)
 
       connection.end()
       return res.send({
         meta: {
-          status: 424
+          status: 425
         },
-        message: '查询总数出错!'
+        message: '添加用户出错!'
       })
     }
-    const { 'COUNT(*)': tot } = result[0]
-    newTotal = tot + 1
 
-    // 添加用户
-    const usersql = `INSERT INTO user(uid,username,password,pow) VALUES ("${newTotal}","${username}","${password}","${pow}")`
-    connection.query(usersql, function (err, result) {
+    // 在对应学生/教师表格添加用户
+    let sql = ''
+    if (pow === 'student') {
+      sql = `INSERT INTO student(uid,sno) VALUES ("${uid}","${uid}")`
+    } else {
+      sql = `INSERT INTO teacher(uid,tno) VALUES ("${uid}","${uid}")`
+    }
+    connection.query(sql, function (err, result) {
       if (err) {
-        console.log('[SELECT ERROR] 添加用户出错 - ', err.message)
+        console.log('[SELECT ERROR] 添加用户到个人列表出错 - ', err.message)
 
         connection.end()
         return res.send({
           meta: {
             status: 425
           },
-          message: '添加用户出错!'
+          message: '添加用户到个人列表出错!'
         })
       }
+      connection.end()
 
-      // 在对应学生/教师表格添加用户
-      let sql = ''
-      if (pow === 'student') {
-        sql = `INSERT INTO student(uid,sno) VALUES ("${newTotal}","${newTotal}")`
-      } else {
-        sql = `INSERT INTO teacher(uid,tno) VALUES ("${newTotal}","${newTotal}")`
-      }
-      connection.query(sql, function (err, result) {
-        if (err) {
-          console.log('[SELECT ERROR] 添加用户到个人列表出错 - ', err.message)
-
-          connection.end()
-          return res.send({
-            meta: {
-              status: 425
-            },
-            message: '添加用户到个人列表出错!'
-          })
+      return res.send({
+        meta: {
+          status: 200
         }
-        connection.end()
-
-        return res.send({
-          meta: {
-            status: 200
-          }
-        })
       })
     })
   })
+
   // res.send('添加用户')
 })
 
@@ -542,7 +524,6 @@ app.delete('/course', (req, res) => { // 删除课程
 })
 
 app.post('/course/apply', (req, res) => { // 报名课程
-  console.log(req.body)
   const { cno, tno, sno } = req.body
 
   const connection = mysql.createConnection({
@@ -576,6 +557,96 @@ app.post('/course/apply', (req, res) => { // 报名课程
     })
   })
   // res.send('报名课程')
+})
+
+app.get('/score', (req, res) => { // 查询成绩列表
+  let searchCno = ''
+  const { pow, num, cno } = req.query
+
+  if (!cno) {
+    searchCno = ''
+  } else {
+    searchCno = cno
+  }
+  let sql = ''
+  if (pow === 'admin') {
+    sql = `select * from sc where (cno like '%${searchCno}%')`
+  }
+  if (pow === 'student') {
+    sql = `select * from sc where (cno like '%${searchCno}%' and sno="${num}")`
+  }
+  if (pow === 'teacher') {
+    sql = `select * from sc where (cno like '%${searchCno}%' and tno="${num}")`
+  }
+
+  const connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: 'qazwsx110',
+    database: 'stumanagesys'
+  })
+  connection.connect()
+  connection.query(sql, function (err, result) {
+    if (err) {
+      console.log('[SELECT ERROR 查询课程列表出错 - ', err.message)
+
+      connection.end()
+      return res.send({
+        meta: {
+          status: 426
+        },
+        message: '查询课程列表出错!'
+      })
+    }
+    connection.end()
+
+    return res.send({
+      meta: {
+        status: 200
+      },
+      scorelist: result
+    })
+  })
+  // res.send('查询')
+})
+
+app.put('/score', (req, res) => { // 更新用户信息
+  const {
+    sno,
+    cno,
+    tno,
+    score
+  } = req.body
+
+  const sql = `UPDATE sc SET score="${score}"  WHERE (sno="${sno}" and cno="${cno}" and tno="${tno}")`
+  const connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: 'qazwsx110',
+    database: 'stumanagesys'
+  })
+  connection.connect()
+  connection.query(sql, function (err, result) {
+    if (err) {
+      console.log('[SELECT ERROR] 修改成绩出错 - ', err.message)
+
+      connection.end()
+      return res.send({
+        meta: {
+          status: 428
+        },
+        message: '修改成绩出错!'
+      })
+    }
+    connection.end()
+
+    return res.send({
+      meta: {
+        status: 200
+      }
+    })
+    // res.send('更新')
+  })
 })
 app.listen(3000)
 console.log('Server running at http://127.0.0.1:3000/')

@@ -157,8 +157,9 @@ export default {
       })
       if (res.meta.status !== 200) {
         return this.$message.error(res.message)
+      } else {
+        this.$message.success('查询课程信息成功')
       }
-      this.$message.success('查询课程信息成功')
       this.courselist = res.courselist
     },
     addDialogClosed () {
