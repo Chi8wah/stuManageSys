@@ -129,7 +129,7 @@ app.get('/info', (req, res) => { // 查询个人信息
   connection.connect()
   connection.query(sql, function (err, result) {
     if (err) {
-      console.log('[SELECT ERROR] - ', err.message)
+      console.log('[SELECT ERROR] - 查询出错!', err.message)
 
       connection.end()
       return res.send({
@@ -137,6 +137,17 @@ app.get('/info', (req, res) => { // 查询个人信息
           status: 421
         },
         message: '查询出错!'
+      })
+    }
+    if (result[0] === undefined) {
+      console.log('[SELECT ERROR] - 查无此人!')
+
+      connection.end()
+      return res.send({
+        meta: {
+          status: 421
+        },
+        message: '查无此人!'
       })
     }
     connection.end()
@@ -301,7 +312,7 @@ app.post('/user', (req, res) => { // 添加用户
     pow
   } = req.body
 
-  let total = 0
+  let newTotal = 0
   const totalsql = 'SELECT COUNT(*) FROM user'
 
   const connection = mysql.createConnection({
@@ -326,11 +337,11 @@ app.post('/user', (req, res) => { // 添加用户
       })
     }
     const { 'COUNT(*)': tot } = result[0]
-    total = tot
+    newTotal = tot + 1
 
     // 添加用户
-    const sql = `INSERT INTO user(uid,username,password,pow) VALUES ("${total + 1}","${username}","${password}","${pow}")`
-    connection.query(sql, function (err, result) {
+    const usersql = `INSERT INTO user(uid,username,password,pow) VALUES ("${newTotal}","${username}","${password}","${pow}")`
+    connection.query(usersql, function (err, result) {
       if (err) {
         console.log('[SELECT ERROR] 添加用户出错 - ', err.message)
 
@@ -339,22 +350,43 @@ app.post('/user', (req, res) => { // 添加用户
           meta: {
             status: 425
           },
-          message: '修改添加用户出错!'
+          message: '添加用户出错!'
         })
       }
-      connection.end()
 
-      return res.send({
-        meta: {
-          status: 200
+      // 在对应学生/教师表格添加用户
+      let sql = ''
+      if (pow === 'student') {
+        sql = `INSERT INTO student(uid,sno) VALUES ("${newTotal}","${newTotal}")`
+      } else {
+        sql = `INSERT INTO teacher(uid,tno) VALUES ("${newTotal}","${newTotal}")`
+      }
+      connection.query(sql, function (err, result) {
+        if (err) {
+          console.log('[SELECT ERROR] 添加用户到个人列表出错 - ', err.message)
+
+          connection.end()
+          return res.send({
+            meta: {
+              status: 425
+            },
+            message: '添加用户到个人列表出错!'
+          })
         }
+        connection.end()
+
+        return res.send({
+          meta: {
+            status: 200
+          }
+        })
       })
     })
   })
   // res.send('添加用户')
 })
 
-app.delete('/user', (req, res) => { // 删除
+app.delete('/user', (req, res) => { // 删除用户
   const { uid } = req.body
 
   const connection = mysql.createConnection({
@@ -388,5 +420,162 @@ app.delete('/user', (req, res) => { // 删除
   // res.send('删除')
 })
 
+app.get('/course', (req, res) => { // 查询课程列表
+  // console.log(req.query)
+  const { pow, num } = req.query
+
+  let sql = ''
+  if (pow === 'teacher') {
+    sql = `SELECT * FROM course WHERE (tno="${num}")`
+  } else {
+    sql = 'SELECT * FROM course'
+  }
+
+  const connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: 'qazwsx110',
+    database: 'stumanagesys'
+  })
+  connection.connect()
+  connection.query(sql, function (err, result) {
+    if (err) {
+      console.log('[SELECT ERROR 查询课程列表出错 - ', err.message)
+
+      connection.end()
+      return res.send({
+        meta: {
+          status: 426
+        },
+        message: '查询课程列表出错!'
+      })
+    }
+    connection.end()
+
+    // console.log(result)
+
+    return res.send({
+      meta: {
+        status: 200
+      },
+      courselist: result
+    })
+  })
+
+  // res.send('查询')
+})
+
+app.post('/course', (req, res) => { // 添加课程
+  const {
+    cno,
+    cname,
+    credit,
+    tno
+  } = req.body
+
+  const connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: 'qazwsx110',
+    database: 'stumanagesys'
+  })
+
+  connection.connect()
+  // 在course表格添加课程
+  const usersql = `INSERT INTO course(cno,cname,credit,tno) VALUES ("${cno}","${cname}","${credit}","${tno}")`
+  connection.query(usersql, function (err, result) {
+    if (err) {
+      console.log('[SELECT ERROR] 开设课程出错 - ', err.message)
+
+      connection.end()
+      return res.send({
+        meta: {
+          status: 426
+        },
+        message: '开设课程出错!'
+      })
+    }
+
+    connection.end()
+
+    return res.send({
+      meta: {
+        status: 200
+      }
+    })
+  })
+  // res.send('添加用户')
+})
+
+app.delete('/course', (req, res) => { // 删除课程
+  const { cno, tno } = req.body
+
+  const connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: 'qazwsx110',
+    database: 'stumanagesys'
+  })
+
+  const sql = `DELETE FROM course WHERE (cno="${cno}" and tno="${tno}")`
+  connection.query(sql, function (err, result) {
+    if (err) {
+      console.log('[SELECT ERROR] 删除课程出错 - ', err.message)
+
+      connection.end()
+      return res.send({
+        meta: {
+          status: 427
+        },
+        message: '删除课程出错!'
+      })
+    }
+    connection.end()
+
+    return res.send({
+      meta: {
+        status: 200
+      }
+    })
+  })
+  // res.send('删除')
+})
+
+app.post('/course/apply', (req, res) => { // 报名课程
+  console.log(req.body)
+  const { cno, tno, sno } = req.body
+
+  const connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: 'qazwsx110',
+    database: 'stumanagesys'
+  })
+  connection.connect()
+  // 在sc表格添加报名信息
+  const usersql = `INSERT INTO sc(sno,cno,tno) VALUES ("${sno}","${cno}","${tno}")`
+  connection.query(usersql, function (err, result) {
+    if (err) {
+      console.log('[SELECT ERROR] 报名课程出错 - ', err.message)
+
+      connection.end()
+      return res.send({
+        meta: {
+          status: 427
+        },
+        message: '报名课程出错!'
+      })
+    }
+
+    connection.end()
+
+    return res.send({
+      meta: {
+        status: 200
+      }
+    })
+  })
+  // res.send('报名课程')
+})
 app.listen(3000)
 console.log('Server running at http://127.0.0.1:3000/')

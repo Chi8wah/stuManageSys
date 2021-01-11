@@ -76,13 +76,32 @@ export default {
           return this.$message.error(res.message)
         }
         this.$message.success('登录成功')
+
+        const num = await this.getNumByUid(res.uid, res.pow, res.uid, res.pow)
         // 将登录成功之后的id保存到客户端的sessionStorage中
         window.sessionStorage.setItem('uid', res.uid)
         // 将权限保存到客户端的sessionStorage中
         window.sessionStorage.setItem('pow', res.pow)
+        // 将个人号码保存到客户端的sessionStorage中
+        window.sessionStorage.setItem('num', num)
         // 跳转到/home
         this.$router.push('/home')
       })
+    },
+    async getNumByUid (getuid, searchForm, uid, pow) {
+      const { data: res } = await this.$http.get('info', {
+        params: {
+          uid: uid,
+          pow: pow,
+          getuid: getuid,
+          searchForm: searchForm
+        }
+      })
+      if (res.meta.status !== 200) {
+        return this.$message.error('查询个人号码失败')
+      }
+      this.$message.success('查询个人号码成功')
+      return res.infoForm.num
     }
   }
 }

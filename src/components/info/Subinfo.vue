@@ -49,6 +49,7 @@ export default {
     return {
       uid: '',
       pow: '',
+      num: '',
       searchForm: {
         uid: '',
         searchForm: ''

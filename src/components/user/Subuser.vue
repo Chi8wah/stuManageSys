@@ -57,8 +57,8 @@
         </el-form-item>
         <el-form-item label="身份">
           <el-radio-group v-model="addForm.pow">
-            <el-radio label="teacher">教师</el-radio>
-            <el-radio label="student" :disabled="addPowFlag">学生</el-radio>
+            <el-radio label="teacher" :disabled="addPowFlag">教师</el-radio>
+            <el-radio label="student">学生</el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>
@@ -195,6 +195,8 @@ export default {
       })
       if (res.meta.status !== 200) {
         return this.$message.error(res.message)
+      } else {
+        this.$message.success('查询用户列表成功')
       }
       this.userlist = res.userlist
     },
