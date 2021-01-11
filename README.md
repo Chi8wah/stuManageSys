@@ -1,24 +1,18 @@
 # stumanagesys
 
-## Project setup
+### 环境搭建
 ```
 npm install
 ```
 
-### Compiles and hot-reloads for development
+### 前端运行方法
+在```stumanagesys```根目录使用命令行运行
 ```
 npm run serve
 ```
 
-### Compiles and minifies for production
+### 后台运行方法
+在```stumanagesys\serve```目录使用命令行运行
 ```
-npm run build
+node app.js
 ```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
